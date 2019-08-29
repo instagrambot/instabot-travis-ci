@@ -24,16 +24,27 @@ bot.login(
 )
 
 my_last_medias = bot.get_your_medias()
-random.shuffle(my_last_medias)
-for media in my_last_medias:
-    my_last_media_likers = bot.get_media_likers(media)
-    random.shuffle(my_last_media_likers)
-    for user in my_last_media_likers:
-        user_medias = bot.get_user_medias(user)
-        random.shuffle(user_medias)
-        for m in user_medias:
-            like_media_likers(bot, m)
-            time.sleep(random.random() * 10)
 
+my_likers = set([
+    liker for media in my_last_medias for liker in bot.get_media_likers(media)
+])
+
+my_followers = set(bot.followers)
+
+likers_that_dont_follow = my_likers - my_followers
+print("Found %d likers that I don't follow" % len(likers_that_dont_follow))
+
+for user in likers_that_dont_follow:
+    if not bot.api.get_user_feed(user):
+        print("can't get %s feed, private user?" % user)
+
+    user_medias = [m["id"] for m in bot.api.last_json["items"] if not m["has_liked"]] 
+    
+    medias_to_like = random.sample(user_medias, min(random.randint(1,3), len(user_medias)))
+    for m in medias_to_like:
+        bot.like(m, check_media=False)
+        time.sleep(random.random() * 5)
+
+    time.sleep(random.random() * 10 + 5)
 
 
