@@ -2,7 +2,7 @@
     Example script that will be executed everyday by Travis-CI.
 
     
-    This script take my likers and like their likers. 
+    This script take my likers who don't follow me and like them. 
 """
 
 
@@ -28,6 +28,7 @@ my_last_medias = bot.get_your_medias()
 my_likers = set([
     liker for media in my_last_medias for liker in bot.get_media_likers(media)
 ])
+print("Found %d likers" % len(my_likers))
 
 my_followers = set(bot.followers)
 
@@ -36,7 +37,15 @@ print("Found %d likers that I don't follow" % len(likers_that_dont_follow))
 
 for user in likers_that_dont_follow:
     if not bot.api.get_user_feed(user):
-        print("can't get %s feed, private user?" % user)
+        print("Can't get %s feed, private user?" % user)
+        print(bot.api.last_json)
+        continue
+
+    
+    liked_user_medias = [m["id"] for m in bot.api.last_json["items"] if m["has_liked"]] 
+    if len(liked_user_medias):
+        print("User %s was already liked, skipping" % user)
+        time.sleep(random.random() * 5)
         continue
 
     user_medias = [m["id"] for m in bot.api.last_json["items"] if not m["has_liked"]] 
