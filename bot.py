@@ -37,6 +37,7 @@ print("Found %d likers that I don't follow" % len(likers_that_dont_follow))
 for user in likers_that_dont_follow:
     if not bot.api.get_user_feed(user):
         print("can't get %s feed, private user?" % user)
+        continue
 
     user_medias = [m["id"] for m in bot.api.last_json["items"] if not m["has_liked"]] 
     
