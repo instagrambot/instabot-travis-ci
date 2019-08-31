@@ -33,19 +33,19 @@ print("Found %d likers" % len(my_likers))
 my_followers = set(bot.followers)
 
 likers_that_dont_follow = my_likers - my_followers
-print("Found %d likers that I don't follow" % len(likers_that_dont_follow))
+bot.logger.info("Found %d likers that I don't follow" % len(likers_that_dont_follow))
 
 for user in likers_that_dont_follow:
     if not bot.api.get_user_feed(user):
-        print("Can't get %s feed, private user?" % user)
-        print(bot.api.last_json)
+        bot.logger.info("Can't get %s feed, private user?" % user)
+        bot.logger.info(str(bot.api.last_json))
         continue
 
     
     liked_user_medias = [m["id"] for m in bot.api.last_json["items"] if m["has_liked"]] 
     if len(liked_user_medias):
-        print("User %s was already liked, skipping" % user)
-        time.sleep(random.random() * 5)
+        bot.logger.info("User %s was already liked, skipping" % user)
+        time.sleep(random.random() * 5 + 5)
         continue
 
     user_medias = [m["id"] for m in bot.api.last_json["items"] if not m["has_liked"]] 
@@ -55,6 +55,6 @@ for user in likers_that_dont_follow:
         bot.like(m, check_media=False)
         time.sleep(random.random() * 5)
 
-    time.sleep(random.random() * 10 + 5)
+    time.sleep(random.random() * 30 + 10)
 
 
